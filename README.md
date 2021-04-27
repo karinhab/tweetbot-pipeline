@@ -10,9 +10,9 @@ Dockerized pipeline that collects tweets from Twitter related to a chosen topic 
 * listen to tweets - filters by a given keyword
 * inserts filtered tweets into MongoDB
 ### 2. ETL job
-* extracts tweets from MongoDB
-* uses VADER model to analyze the sentiment of tweet-texts
-* creates a Postgres DB storing tweets with according VADER score and sentiment binned into positive, negative and neutral
+* EXTRACTs tweets from MongoDB
+* TRANSFORM: uses VADER model to analyze the sentiment of tweet-texts
+* LOAD: creates a Postgres DB storing tweets with according VADER score and sentiment binned into positive, negative and neutral
 ### 3. Slackbot
 * queries Postgres DB for latest tweet
 * posts tweet + VADER score + Smiley according to positive, negative, neutral sentiment to Slack channel at a given time interval
