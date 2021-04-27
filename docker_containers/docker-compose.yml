@@ -1,0 +1,65 @@
+# The docker-compose.yml is the file that defines the setup of the docker-compose pipeline
+version: '3' # version of docker-compose
+
+# Each container is one service
+services: # Now we are listing the containers that will be part of this pipeline
+
+  # 1. Container
+  tweet_collector:
+    container_name: tweet_collector # the name of the actual docker container
+    build: tweet_collector/ # Creates the image from the Dockerfile in the directory ./tweet_collector
+    volumes: # links the local directory ./tweet_collector with the container directory /app and synchronizes them
+    - ./tweet_collector/:/app
+    depends_on:
+      # depends_on in this case specifies that the tweet_collector container gets started only
+      # after the mongodb container has been started
+      # In order to connect to the mongodb database it has to be set up before we try to connect to it
+      # Unfortunately depends_on just defines an order in which container are started, not in which they are
+      # ready to operate
+    - mongodb
+    environment: 
+    - API_KEY=${TWITTER_API_KEY}
+    - API_SECRET=${TWITTER_API_SECRET}
+    - ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN}
+    - ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+ 
+  # 2. Container
+  mongodb:
+    container_name: mongodb
+    image: mongo # Uses a predefined image, namely mongo
+    ports:
+    - 27017:27017
+  
+  # 3. Container: ETL-Job
+  etl_job:
+    container_name: etl # the name of the actual docker container
+    build: etl_job/ # Creates the image from the Dockerfile in the directory ./tweet_collector
+    volumes: # links the local directory ./tweet_collector with the container directory /app and synchronizes them
+    - ./etl_job/:/app
+    depends_on:
+    - mongodb
+    - postgres
+
+  # 4. Container: postgres
+  postgres:
+    container_name: postgres
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db
+    image: postgres
+    ports: 
+    - 5555:5432
+    depends_on: 
+    - mongodb
+    
+
+  # 5. Container: slackbot
+  slackbot:
+    container_name: slackbot # the name of the actual docker container
+    build: slackbot/ # Creates the image from the Dockerfile in the directory ./tweet_collector
+    volumes: # links the local directory ./tweet_collector with the container directory /app and synchronizes them
+    - ./slackbot/:/app
+    depends_on:
+    - mongodb
+    - postgres
