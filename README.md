@@ -10,12 +10,15 @@ Dockerized pipeline that collects tweets from Twitter related to a chosen topic 
 ### 1. Tweet-collector:
 * uses Tweepy package to handle twitter credentials (API keys and tokens)
 * listen to tweets - filters by a given keyword
-* inserts filtered tweets into MongoDB
-### 2. ETL job
-* EXTRACTs tweets from MongoDB
+### 2. Mongo DB:
+* stores filtered tweets
+### 3. ETL job
+* EXTRACT: connects to MongoDB to access filtered tweets
 * TRANSFORM: uses VADER model to analyze the sentiment of tweet-texts
-* LOAD: creates a Postgres DB storing tweets with according VADER score and sentiment binned into positive, negative and neutral
-### 3. Slackbot
+* LOAD: creates a Postgres DB to store tweets with VADER scoring
+### 4. Postgres DB
+* stores tweets with according VADER score and sentiment binned into positive, negative and neutral
+### 5. Slackbot
 * queries Postgres DB for latest tweet
 * posts tweet + VADER score + Smiley according to positive, negative, neutral sentiment to Slack channel at a given time interval
 
